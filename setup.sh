@@ -183,6 +183,7 @@ prepare_env_file() {
         echo "Please provide the following details to setup the project:"
 
         APP_KEY=$(generateAppKey)
+        echo "APP_KEY=$APP_KEY"
         APP_URL=$(validUrl "Application URL (Ex: https://google.com)")
         REPO_PULL_TOKEN=$(prompt "API token to pull encryption repository")
         REPO_AUTO_UPDATE=$(prompt_boolean "Do you want to update encryption project manually ([Y]/n)?" "y")
