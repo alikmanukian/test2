@@ -1,0 +1,83 @@
+# For more information: https://laravel.com/docs/sail
+version: '3'
+services:
+  nginx:
+    build:
+      context: ./docker/nginx
+    image: 'referralfactory/encryption-nginx:v3'
+    depends_on:
+      - php-fpm
+    volumes:
+      - ./shared/data/app:/var/www/html:cached
+      - ./shared/nginx/sites:/etc/nginx/sites-available
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    networks:
+      - sail
+    container_name: 'encryption-nginx'
+    restart: 'unless-stopped'
+
+  php-fpm:
+    build:
+      context: ./docker/php-fpm
+    image: 'referralfactory/encryption-php-fpm:v3'
+    volumes:
+      - ./shared/data/app:/var/www/html:cached
+    networks:
+      - sail
+    expose:
+      - "9000"
+    container_name: 'encryption-php-fpm'
+    restart: 'unless-stopped'
+
+  laravel-horizon:
+    build:
+      context: ./docker/laravel-horizon
+    image: 'referralfactory/encryption-laravel-horizon:v3'
+    volumes:
+      - ./shared/data/app:/var/www/html
+      - ./shared/supervisord.d:/etc/supervisord.d
+    depends_on:
+      - php-fpm
+    networks:
+      - sail
+    container_name: 'encryption-laravel-horizon'
+    restart: 'unless-stopped'
+
+  mysql:
+    image: 'mariadb:10.6'
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: '${DB_DATABASE:-referral_factory_encryption}'
+      MYSQL_USER: '${DB_USERNAME:-laravel}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - ./shared/data/mysql:/var/lib/mysql
+    networks:
+      - sail
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
+      retries: 3
+      timeout: 5s
+    container_name: 'encryption-mysql'
+    restart: 'unless-stopped'
+
+  redis:
+    image: 'redis:alpine'
+    volumes:
+      - ./shared/data/redis:/data
+    networks:
+      - sail
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 3
+      timeout: 5s
+    container_name: 'encryption-redis'
+    restart: 'unless-stopped'
+
+networks:
+  sail:
+    driver: bridge
