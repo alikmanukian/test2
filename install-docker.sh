@@ -16,3 +16,4 @@ ensure_docker_installed() {
 }
 
 ensure_docker_installed
+
