@@ -1,4 +1,10 @@
 #!/bin/bash
+
+# Check if a command exists
+command_exists() {
+	command -v "$@" > /dev/null 2>&1
+}
+
 ensure_docker_installed() {
     if ! command_exists docker; then
         echo "Installing Docker ..."
