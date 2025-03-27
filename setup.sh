@@ -5,6 +5,7 @@ APP_FOLDER="${SHARED_FOLDER}/data/app"
 APP_ENV_FILE="${APP_FOLDER}/.env"
 PULL=${1:-"pull"}
 BUILD_TYPE="$2"
+#git@github.com:alikmanukian/test2.git
 
 # Determine OS and set sed in-place extension accordingly
 sed_extension=""
